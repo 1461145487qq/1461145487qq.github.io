@@ -1,43 +1,104 @@
-<html>
-<head>
-    <title>Chatbot</title>
-</head>
-<body>
-    <div id="chatbot">
-        <h1>Chatbot</h1>
-        <div id="chatbot-conversation">
-            <p>Hello, I'm your chatbot. How can I help you?</p>
-        </div>
-        <form id="chatbot-form">
-            <input type="text" id="chatbot-input" placeholder="Type your message here...">
-            <input type="submit" value="Send">
-        </form>
-    </div>
-    <script>
-        // Get the chatbot conversation element
-        const conversation = document.getElementById('chatbot-conversation');
-        // Get the chatbot form element
-        const form = document.getElementById('chatbot-form');
-        // Get the chatbot input element
-        const input = document.getElementById('chatbot-input');
-        // Handle the form submission
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Get the user input
-            const userInput = input.value;
-            // Add the user input to the conversation
-            conversation.innerHTML += `<p>You: ${userInput}</p>`;
-            // Clear the input
-            input.value = '';
-            // Handle the user input
-            // Use AI to generate a response
-            const response = generateResponse(userInput);
-            conversation.innerHTML += `<p>Chatbot: ${response}</p>`;
-        });
-        // Generate a response using AI
-        function generateResponse(userInput) {
-            // Your AI code here
-        }
-    </script>
-</body>
-</html>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>用户位置与百度地图显示</title>  
+<style>
+ footer {  
+    text-align: center; /* 文本居中 */  
+    color: #888; /* 灰色字体 */  
+    font-size: 14px; /* 字体大小 */  
+    padding: 20px 0; /* 内边距 */  
+    background-color: #f5f5f5; /* 背景色，可选 */  
+    position: absolute; /* 绝对定位 */  
+    bottom: 0; /* 固定在底部 */  
+    width: 100%; /* 宽度100% */  
+  }    
+  #map {  
+    width: 100%;  
+    height: 600px;  
+  }  
+</style>  
+<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=uKJbFrahE1ye4DZJtnx2Vd9aO8RNv9gH"></script>  
+<script>  
+  // 获取用户位置并显示在百度地图上  
+  function getLocationAndShowOnMap() {  
+    // 检查浏览器是否支持获取地理位置  
+    if (navigator.geolocation) {  
+      navigator.geolocation.getCurrentPosition(showPosition, showError);  
+    } else {  
+      document.getElementById("location-info").innerHTML = "该浏览器不支持获取地理位置。";  
+    }  
+  }  
+  
+  // 显示用户位置信息  
+  function showPosition(position) {  
+    
+ var latitude = position.coords.latitude+0.003857;  
+    var longitude = position.coords.longitude+0.010956
+    var map = new BMap.Map("map"); // 创建地图实例  
+    var point = new BMap.Point(longitude, latitude); // 创建点坐标  
+    map.centerAndZoom(point, 15); // 初始化地图，设置中心点坐标和地图级别  
+    map.enableScrollWheelZoom(true); // 允许滚轮缩放  
+  
+    // 在地图上添加标注  
+    var marker = new BMap.Marker(point);  
+    map.addOverlay(marker);  
+  
+    // 显示经纬度  
+    document.getElementById("location-info").innerHTML = "经度: " + longitude + "<br>纬度: " + latitude;  
+  
+    // 获取并显示用户IP、浏览器版本、系统版本（这部分通常需要外部API或服务器端脚本）  
+    displayUserDetails();  
+  }  
+  
+  // 显示错误信息  
+  function showError(error) {  
+    switch (error.code) {  
+      case error.PERMISSION_DENIED:  
+        document.getElementById("location-info").innerHTML = "用户拒绝了对获取地理位置的请求。"  
+        break;  
+      case error.POSITION_UNAVAILABLE:  
+        document.getElementById("location-info").innerHTML = "位置信息是不可用的。"  
+        break;  
+      case error.TIMEOUT:  
+        document.getElementById("location-info").innerHTML = "请求用户地理位置超时。"  
+        break;  
+      case error.UNKNOWN_ERROR:  
+        document.getElementById("location-info").innerHTML = "发生未知错误。"  
+        break;  
+    }  
+  }  
+  
+  // 显示用户详细信息（IP、浏览器、系统等），这里使用外部API示例（需要替换为实际可用的服务）  
+  function displayUserDetails() {  
+    // 注意：以下代码仅为示例，实际使用时需要替换为合适的API或服务来获取这些信息。  
+    fetch('https://api.ipify.org?format=json') // 示例IP API（可能需要CORS代理或自己的服务器端脚本）  
+      .then(response => response.json())  
+      .then(data => {  
+        document.getElementById("user-ip").textContent = "用户IP: " + data.ip;  
+      })  
+      .catch(error => {  
+        document.getElementById("user-ip").textContent = "无法获取用户IP。";  
+      });  
+  
+    // 浏览器信息和系统信息可以通过navigator对象获取部分信息，但完整的版本信息可能需要其他方法或库。  
+    document.getElementById("browser-info").textContent = "浏览器: " + navigator.userAgent;  
+    // 系统信息通常包含在userAgent字符串中，但解析它可能需要额外的库或自定义代码。  
+  }  
+</script>  
+</head>  
+<body onload="getLocationAndShowOnMap()">  
+  <h1></h1>  
+  <div id="map"></div> <!-- 百度地图容器 -->  
+  <div id="location-info"></div> <!-- 显示经纬度信息 -->  
+  <div id="user-details">  
+    <p id="user-ip"></p> <!-- 显示用户IP -->  
+    <p id="browser-info"></p> <!-- 显示浏览器信息 -->  
+    <!-- 注意：获取完整的系统版本可能需要其他方法或库，这里未提供示例代码。 -->   
+<footer>  
+    <span>© 2023 Junyi Chen</span>  
+  </footer>  
+
+  </div
